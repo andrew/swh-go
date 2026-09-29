@@ -1,0 +1,54 @@
+name: spec
+
+on:
+  schedule:
+    - cron: '41 7 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sync:
+    name: Vendor the current description and regenerate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Fetch the description
+        run: make spec
+
+      - name: Regenerate the client
+        run: make generate
+
+      - name: Build and test against it
+        run: |
+          go build ./...
+          go test ./...
+
+      - name: Read the swh.web version it came from
+        id: source
+        run: |
+          version=$(awk '/^info:/{f=1;next} f&&/^  version:/{print $2;exit}' openapi.yaml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: spec/swh-web-${{ steps.source.outputs.version }}
+          title: Regenerate against the description for swh.web ${{ steps.source.outputs.version }}
+          body: |
+            The vendored `openapi.yaml` moved, and `internal/gen/client.gen.go`
+            was regenerated from it.
+
+            Read the diff on `openapi.yaml` for what changed in the API, and
+            check whether any generated method signature changed in a way that
+            breaks callers.
+          commit-message: Regenerate against the description for swh.web ${{ steps.source.outputs.version }}

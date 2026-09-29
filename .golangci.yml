@@ -1,0 +1,36 @@
+version: "2"
+
+formatters:
+  enable:
+    - gofmt
+
+linters:
+  enable:
+    - gocritic
+    - gocognit
+    - gocyclo
+    - maintidx
+    - dupl
+    - mnd
+    - unparam
+    - ireturn
+    - goconst
+    - errcheck
+  settings:
+    goconst:
+      ignore-tests: true
+  exclusions:
+    rules:
+      # internal/gen is produced by oapi-codegen from openapi.yaml.
+      - path: internal/gen/
+        linters:
+          - gocritic
+          - gocognit
+          - gocyclo
+          - maintidx
+          - dupl
+          - mnd
+          - unparam
+          - ireturn
+          - goconst
+          - errcheck
