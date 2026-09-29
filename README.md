@@ -33,9 +33,9 @@ generated from it and committed, so `go build` is the only step required.
 `client.API` has one method per documented endpoint. `examples/search` is
 the above as a runnable command.
 
-Response types are named after the route that first returns their shape, and
-aliased in this package so callers import only `swh`. Several routes share a
-type where the upstream documentation describes them identically.
+Response types are named after the route that first returns them, and aliased
+in this package so callers import only `swh`. Several routes share a type
+where the upstream documentation describes them identically.
 
 ## Hand-written
 
@@ -100,8 +100,8 @@ undocumented upstream, so `internal/gen` omits them:
 `/api/1/raw-extrinsic-metadata/get/{id}/`. Reach those with `Client.Get`.
 
 Response field types come from prose docstrings upstream and are one level
-deep, so some bodies are typed more loosely than the response shape allows.
-The corrections are in swh-openapi's overlay.
+deep, so some bodies are typed more loosely than the response structure
+allows. The corrections are in swh-openapi's overlay.
 
 ## Licence
 
